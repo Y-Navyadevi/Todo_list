@@ -4,17 +4,18 @@ import 'bootstrap/dist/css/bootstrap.css';
 
 
 
-
-
 console.clear()
 
+
 class App extends React.Component {
+
   state={}
   componentDidMount() {
     const list = [
       ]
-    
+    const length = list.length
     this.setState({list})
+    this.setState({length})
   }
   handleSubmit=event=>{
     event.preventDefault()
@@ -89,7 +90,7 @@ class App extends React.Component {
     })
   }
   renderList() {
-    const {list,value,deleteMode,removing,editing} = this.state
+    const {list,value,deleteMode,removing,editing,length} = this.state
     if (Array.isArray(list)&&list.length>0) {
       return (
         <ul class="list-unstyled">
@@ -103,10 +104,7 @@ class App extends React.Component {
                       editing!==i&&
                       <span onClick={()=>this.toggleEdit(i)} className={typeof(e.value)==='string'&&e.value.length>0?'':'empty'}>{typeof(e.value)==='string'&&e.value.length>0?e.value:'<empty>'}</span>
                     }
-                    {
-                      editing===i&&
-                      <textarea ref={el=>this.input=el} className="form-control" value={e.value} onChange={this.handleEditing} onBlur={this.handleBlur} />
-                    }
+                    
                   </h5>
                 </div>
                 {
@@ -126,9 +124,11 @@ class App extends React.Component {
                           this.removeConfirm(i)
                         }}>Yes</button>
                             <button className="btn btn-outline-dark btn-sm mr-2" onClick={this.removeCancel}>No</button>
+                        
                           </div>
                       }
                     </div>
+                     
                   </div>
                 }
               </li>
@@ -138,6 +138,8 @@ class App extends React.Component {
       )
     }
     return null
+  }
+  renderlength(){
   }
   toggleDeleteMode=event=>{
     this.setState((prevState,props)=>{
@@ -179,6 +181,7 @@ class App extends React.Component {
           <div className="col">
             {this.renderList()}
             {this.renderInput()}
+          <p>Number of list items: {this.state.length}</p>        
           </div>
         </div>
       </div>
