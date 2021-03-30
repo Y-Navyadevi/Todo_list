@@ -1,192 +1,180 @@
-import React from 'react';
+import React, {Component} from 'react';
 import './App.css';
-import 'bootstrap/dist/css/bootstrap.css';
 
 
+const toDoItems = [
 
-console.clear()
+];
 
-
-class App extends React.Component {
-
-  state={}
-  componentDidMount() {
-    const list = [
-      ]
-    const length = list.length
-    this.setState({list})
-    this.setState({length})
-  }
-  handleSubmit=event=>{
-    event.preventDefault()
-    this.setState((prevState,props)=>{
-      const {value,list} = prevState
-      if (typeof(value)==='string'&&value.length>0) {
-        list.push({value})
-        return {
-          list, value:'',
-        }
-      }
-      return null
-    })
-  }
-  handleChange=event=>{
-    const {value} = event.target
-    this.setState((prevState,props)=>{
-      if (typeof(value)==='string'&&value.length>=0) {
-        return {value}
-      }
-      return null
-    })
-  }
-  remove=i=>{
-    this.setState((prevState,props)=>{
-      const {list} = prevState
-      if (typeof(i)==='number'&&i>=0&&i<list.length) {
-        return {removing:i}
-      }
-      return null
-    })
-  }
-  removeConfirm=i=>{
-    this.setState((prevState,props)=>{
-      const {list} = prevState
-      if (typeof(i)==='number'&&i>=0&&i<list.length) {
-        list.splice(i,1)
-        return {list}
-      }
-      return null
-    },this.removeCancel)
-  }
-  removeCancel=event=>{
-    this.setState((prevState,props)=>{
-      delete prevState.removing
-      return prevState
-    })
-  }
-  toggleEdit=i=>{
-    this.setState({editing:i},()=>{
-      if (typeof(this.input)==='object'&&this.input!==null) {
-        this.input.focus()
-      }
-    })
-  }
-  handleBlur=event=>{
-    this.setState((prevState,props)=>{
-      delete prevState.editing
-      return prevState
-    })
-  }
-
-  toggleDone=i=>{
-    this.setState((prevState,props)=>{
-      const {list} = prevState
-      if (typeof(i)==='number'&&i>=0&&i<list.length) {
-        const {done} = list[i]
-        list[i].done = !done
-        return {list}
-      }
-      return null
-    })
-  }
-  renderList() {
-    const {list,value,deleteMode,removing,editing,length} = this.state
-    if (Array.isArray(list)&&list.length>0) {
-      return (
-        <ul class="list-unstyled">
-          {
-            list.map((e,i)=>(
-              <li className="media mb-3">
-
-                <div className="media-body">
-                  <h5 className={`mt-2 mb-1 ${e.done?'done':''}`}>
-                    {
-                      editing!==i&&
-                      <span onClick={()=>this.toggleEdit(i)} className={typeof(e.value)==='string'&&e.value.length>0?'':'empty'}>{typeof(e.value)==='string'&&e.value.length>0?e.value:'<empty>'}</span>
-                    }
-                    
-                  </h5>
-                </div>
-                {
-                  deleteMode&&
-                  <div className="media-foot">
-                    <div className="btn-toolbar" role="toolbar">
-                      {
-                        removing!==i&&
-                        <button className="btn btn-outline-danger btn-sm mr-2" onClick={()=>{
-                          this.remove(i)
-                        }}>{'\u{2718}'} Remove</button>
-                      }
-                      {
-                        removing===i&&
-                          <div>
-                            <button className="btn btn-outline-danger btn-sm mr-2" onClick={()=>{
-                          this.removeConfirm(i)
-                        }}>Yes</button>
-                            <button className="btn btn-outline-dark btn-sm mr-2" onClick={this.removeCancel}>No</button>
-                        
-                          </div>
-                      }
-                    </div>
-                     
-                  </div>
-                }
-              </li>
-            ))
-          }
-        </ul>
-      )
+class CreateItem extends React.Component {
+  handleCreate(e) {
+    e.preventDefault();
+    
+    if (!this.refs.newItemInput.value) {
+      alert('Please enter a task name.');
+      return;
+    } else if (this.props.toDoItems.map(element => element.name).indexOf(this.refs.newItemInput.value) != -1) {
+      alert('This task already exists.');
+      this.refs.newItemInput.value = '';
+      return;
     }
-    return null
+    
+    this.props.createItem(this.refs.newItemInput.value);
+    this.refs.newItemInput.value = '';
   }
-  renderlength(){
-  }
-  toggleDeleteMode=event=>{
-    this.setState((prevState,props)=>{
-      const {deleteMode} = prevState
-      return {deleteMode:!deleteMode}
-    })
-  }
-  renderDeleteToggle() {
-    const {deleteMode} = this.state
-    return (
-      <button className={`btn ${deleteMode?'btn-danger':'btn-outline-danger'}`} onClick={this.toggleDeleteMode}>Remove</button>
-    )
-  }
-  renderInput() {
-    const {value} = this.state
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <div className="input-group mb-3">
-          <input type="text" className="form-control" placeholder="" value={value} onChange={this.handleChange} />
-          <div className="input-group-append">
-            <button className="btn btn-outline-primary" type="submit">{'\u002b'} Add</button>
-          </div>
-        </div>
-      </form>
-    )
-  }
+  
   render() {
     return (
-      <div className="container">
-        <h1>TODO list</h1>
-        <div className="row mb-3">
-          <div className="col">
-            <div className="btn-toolbar float-right">
-              {this.renderDeleteToggle()}
-            </div>
-          </div>
-        </div>
-        <div className="row mb-5">
-          <div className="col">
-            {this.renderList()}
-            {this.renderInput()}
-          <p>Number of list items: {this.state.length}</p>        
-          </div>
-        </div>
+      <div className="create-new">
+        <form onSubmit={this.handleCreate.bind(this)}>
+          <input type="text" placeholder="New Task" ref="newItemInput" />
+          <button>Create</button>
+        </form>
       </div>
-    )
+    );
   }
 }
-;
+
+class ToDoListItem extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      editing: false
+    };
+  }
+  
+  renderName() {
+    const itemStyle = {
+      'text-decoration': this.props.completed ? 'line-through' : 'none',
+      cursor: 'pointer'
+    };
+    
+    if(this.state.editing) {
+      return (
+          <form onSubmit={this.onSaveClick.bind(this)}>
+            <input type="text" ref="editInput" defaultValue={this.props.name} />
+          </form>
+      );
+    }
+    
+    return (
+      <span style={itemStyle} onClick={this.props.toggleComplete.bind(this, this.props.name)}>{this.props.name}</span>
+    );
+  }
+  
+  renderButtons() {
+    if (this.state.editing) {
+      return (
+        <span>
+          <button onClick={this.onSaveClick.bind(this)}>Save</button>
+          <button onClick={this.onCancelClick.bind(this)}>Cancel</button>
+        </span>
+      );
+    }
+    
+    return (
+      <span>
+        <button onClick={this.onEditClick.bind(this)}>Edit</button>
+        <button onClick={this.props.deleteItem.bind(this, this.props.name)}>Delete</button>
+      </span>
+    );
+  }
+  
+  onEditClick() {
+    this.setState({ editing: true });
+  }
+  
+  onCancelClick() {
+    this.setState({ editing: false });
+  }
+  
+  onSaveClick(e) {
+    e.preventDefault();
+    this.props.saveItem(this.props.name, this.refs.editInput.value);
+    this.setState({ editing: false });
+  }
+  
+  render() {
+    return (
+      <div className="to-do-item">
+        <span className="name">
+        {this.renderName()}
+        </span>
+        <span className="actions">
+        {this.renderButtons()}
+        </span>
+      </div>
+    );
+  }
+}
+
+class ToDoList extends React.Component {
+  renderItems() {
+    return this.props.toDoItems.map((item, index) => <ToDoListItem key={index} {...item} {...this.props} />);
+  }
+  
+  render() {
+    return (
+      <div className="items-list">
+        {this.renderItems()}
+      </div>
+    );
+  }
+}
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      toDoItems
+    };
+  }
+  
+  createItem(item) {
+    this.state.toDoItems.unshift({
+      name: item,
+      completed: false
+    });
+    this.setState({
+      toDoItems: this.state.toDoItems
+    });
+  }
+  
+  findItem(item) {
+    return this.state.toDoItems.filter((element) => element.name === item)[0];
+  }
+  
+  toggleComplete(item) {
+    let selectedItem = this.findItem(item);
+    selectedItem.completed = !selectedItem.completed;
+    this.setState({ toDoItems: this.state.toDoItems });
+  }
+  
+  saveItem(oldItem, newItem) {
+    let selectedItem = this.findItem(oldItem);
+    selectedItem.name = newItem;
+    this.setState({ toDoItems: this.state.toDoItems });
+  }
+  
+  deleteItem(item) {
+    let index = this.state.toDoItems.map(element => element.name).indexOf(item);
+    this.state.toDoItems.splice(index, 1);
+    this.setState({ toDoItems: this.state.toDoItems });
+  }
+  
+  render() {
+    return (
+      <div className="to-do-app">
+        <div className="header">
+          <h1>ToDo List</h1>
+        </div>
+        <CreateItem toDoItems={this.state.toDoItems} createItem={this.createItem.bind(this)} />
+        <ToDoList toDoItems={this.state.toDoItems} deleteItem={this.deleteItem.bind(this)} saveItem={this.saveItem.bind(this)} toggleComplete={this.toggleComplete.bind(this)} />
+      </div>
+    );
+  }
+}
+
 export default App
